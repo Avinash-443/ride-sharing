@@ -1,0 +1,14 @@
+# Ignore Python virtual environment folder
+venv/
+env/
+.venv/
+
+# Ignore Firebase secret key
+serviceAccountKey.json
+
+# Ignore __pycache__ folders
+__pycache__/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
