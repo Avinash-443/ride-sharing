@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareNGo - Home</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        h2 {
+            margin: 0 0 1rem;
+            color: #333;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ride-box {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .ride-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .ride-box p {
+            margin: 0.5rem 0;
+            color: #444;
+        }
+
+        .ride-box .select-btn {
+            width: 100%;
+            margin-top: 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .ride-box .select-btn:hover {
+            background: #218838;
+        }
+
+        .ad-box {
+            background: #fff;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .ad-box img.ad-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 🔒 Logout Button -->
+    <button class="logout-btn" onclick="logout()">Logout</button>
+
+    <h2>Welcome to ShareNGo</h2>
+    <p>Book a ride or create a new one with ease.</p>
+
+    <!-- ✅ Ad Section -->
+    <div class="ad-box">
+        <h3>Sponsored</h3>
+        <img src="{{ ad_url }}" alt="Advertisement" class="ad-image">
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div>
+        <a class="btn" id="ride-creation">Create a Ride</a>
+        <a class="btn" id="filter">Filter</a>
+        <a class="btn" id="ride-history">Ride History</a>
+        <a class="btn" id="my-rides">My Rides</a>
+    </div>
+
+    <!-- Available Rides Section -->
+    <div class="available-rides">
+        <h3>Available Rides</h3>
+
+        {% for ride in rides %}
+        <div class="ride-box">
+            <p><strong>Date:</strong> {{ ride.ride_date_and_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <p><strong>From:</strong> {{ ride.from_location }}</p>
+            <p><strong>To:</strong> {{ ride.to_location }}</p>
+            <p><strong>Vehicle:</strong> {{ ride.vehicle_id }}</p>            <p><strong>Seats Available:</strong> {{ ride.available_seats }}</p>
+            <p><strong>Total Passengers:</strong> {{ ride.current_member_count }}</p>
+            <p><strong>Price (per person):</strong> ₹{{ ride.per_person_cost }}</p>
+            <button class="select-btn" onclick="joinRide('{{ ride.ride_id }}')">Select Ride</button>
+        </div>
+        {% else %}
+        <p>No rides available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function joinRide(rideId) {
+        fetch('/select_ride', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ride_id: rideId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || data.error);
+            if (data.message) {
+                location.reload();
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert("Something went wrong!");
+        });
+    }
+
+    document.getElementById("ride-creation").addEventListener("click", function () {
+        window.location.href = "/ride_creation_page";
+    });
+
+    document.getElementById("filter").addEventListener("click", function () {
+        window.location.href = "/filter_page";
+    });
+
+    document.getElementById("ride-history").addEventListener("click", function () {
+        window.location.href = "/ride_history_page";
+    });
+
+    document.getElementById("my-rides").addEventListener("click", function () {
+        window.location.href = "/my_rides_page";
+    });
+
+    function logout() {
+        fetch('/logout', {
+            method: 'POST'
+        }).then(() => {
+            window.location.href = '/';
+        }).catch(err => {
+            alert('Failed to logout.');
+            console.error(err);
+        });
+    }
+</script>
+</body>
+</html>

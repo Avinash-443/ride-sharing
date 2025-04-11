@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareNGo</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: 'Inter', sans-serif;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 2.2rem; }
+        .subtitle { color: #666; margin-bottom: 2rem; }
+        .logo {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .toggle-container { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
+        .toggle-btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 25px;
+            transition: all 0.3s;
+            background: rgba(102, 102, 102, 0.1);
+        }
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .input-group { margin-bottom: 1.5rem; text-align: left; }
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #f9f9f9;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="" alt="ShareNGo Logo" class="logo">
+        <h1>ShareNGo</h1>
+        <p class="subtitle">University Ride Sharing Made Easy</p>
+        
+        <div class="toggle-container">
+            <button class="toggle-btn" id="loginBtn">Login</button>
+            <button class="toggle-btn" id="signUpBtn">Sign Up</button>
+        </div>
+
+        <form id ="loginForm" action="/signin" method="POST">
+            <div class="input-group">
+                <input type="email" name="email" placeholder="Email address" required>
+            </div>
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="submit-btn">Login</button>
+        </form>
+        
+
+        <form id="signUpForm" class="hidden" action="/register" method="POST">
+            <div class="input-group">
+                <input name="email" type="email" id="signUpEmail" placeholder="Email address" required>
+            </div>
+            <div class="input-group">
+                <input name="full-name" type="text" id="fullName" placeholder="Full name" required>
+            </div>
+            <div class="input-group">
+                <input name="university-id" type="text" id="universityID" placeholder="University ID" required>
+            </div>
+            <div class="input-group">
+                <select name="gender" id="gender" required>
+                    <option value="" disabled selected>Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <input name="password" type="password" id="signUpPassword" placeholder="Password" required>
+            </div>
+            <button type="submit" class="submit-btn" id="createaccount">Create Account</button>
+        </form>
+    </div>
+
+    <script>
+        const loginBtn = document.getElementById('loginBtn');
+        const signUpBtn = document.getElementById('signUpBtn');
+        const loginForm = document.getElementById('loginForm');
+        const signUpForm = document.getElementById('signUpForm');
+
+        function toggleForms(showSignUp) {
+            loginBtn.classList.toggle('active', !showSignUp);
+            signUpBtn.classList.toggle('active', showSignUp);
+            loginForm.classList.toggle('hidden', showSignUp);
+            signUpForm.classList.toggle('hidden', !showSignUp);
+        }
+
+        loginBtn.addEventListener('click', () => toggleForms(false));
+        signUpBtn.addEventListener('click', () => toggleForms(true));
+        toggleForms(false);
+
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                let formData = new FormData(this);
+
+                try {
+                    let response = await fetch('/signin', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    let result = await response.json();
+
+                    if (response.ok) {
+                        alert(result.message);
+                        window.location.href = "/index"; // Redirect after successful login
+                    } else {
+                        alert(result.error);
+                    }
+                } catch (error) {
+                    alert("Error occurred: " + error);
+                }
+            });
+
+        document.getElementById('signUpForm').addEventListener('submit', async function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                let formData = new FormData(this);
+
+                try {
+                    let response = await fetch('/register', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    let result = await response.json();
+
+                    if (response.ok) {
+                        alert(result.message);
+                        toggleForms(false); // Switch back to login form
+                    } else {
+                        alert(result.error);
+                    }
+                } catch (error) {
+                    alert("Error occurred: " + error);
+                }
+            });
+    </script>
+</body>
+</html>
