@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import firebase_admin
 import datetime
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, initialize_app
 import re
 import secrets, pytz
+import json
+import os
 
 
 def provide_secret_key():
@@ -14,8 +16,13 @@ app = Flask(__name__)
 app.secret_key = provide_secret_key()
 
 # Initialize Firebase
-cred = credentials.Certificate(r"C:\git files\ride-sharing-b7053-firebase-adminsdk-fbsvc-45494f1901.json")
-firebase_admin.initialize_app(cred)
+firebase_creds = os.environ.get("FIREBASE_CREDS")
+
+if firebase_creds is None:
+    raise ValueError("FIREBASE_CREDS environment variable is not set")
+
+cred = credentials.Certificate(json.loads(firebase_creds))
+initialize_app(cred)
 db = firestore.client()
 
 # Email validation for VIT domains
